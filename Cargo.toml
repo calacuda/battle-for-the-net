@@ -82,7 +82,6 @@ rustc-hash = { version = "2.1.1", features = ["nightly"] }
 serde = { version = "1.0.228", features = ["derive"] }
 log = { version = "0.4.29", features = ["std"] }
 crossbeam = { version = "0.8.4", features = ["crossbeam-channel"] }
-bevy_ufbx = "0.17"
 # portable_async_sleep = "0.1.1"
 
 [profile.dev]

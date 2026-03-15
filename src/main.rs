@@ -13,7 +13,7 @@ pub mod frontend;
 
 fn main() {
     let filter = format!(
-        "info,{}=trace,bevy_dioxus_hooks::query::command=error",
+        "info,{}=trace,bevy_dioxus_hooks::query::command=error,wgpu_hal=off",
         env!("CARGO_PKG_NAME").replace("-", "_")
     );
     let level = Level::INFO;
@@ -36,6 +36,7 @@ fn main() {
 
     App::new()
         .insert_resource(DirectionalLightShadowMap { size: 4096 })
+        .insert_resource(ClearColor(Color::linear_rgb(0.1, 0.1, 0.1)))
         .add_plugins((default_plugins, FrameTimeDiagnosticsPlugin::default()))
         // .add_plugins(FpsTrackingPlugin)
         // .add_plugins(SpherePlugin)
