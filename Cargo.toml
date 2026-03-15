@@ -64,13 +64,6 @@ headless_ci = [
 	"bevy/zstd_rust",
 ]
 
-# cargo keeps rm'ing this so copy paste this when it does
-# [profile.dev.package.wgpu-types]
-# debug-assertions = false
-
-[profile.dev.package.wgpu-types]
-debug-assertions = false
-
 [dependencies]
 bevy = { version = "0.17", features = ["png"], default-features=false }
 bevy_common_assets = { version = "0.14", features = ["json", "ron", "toml"] }

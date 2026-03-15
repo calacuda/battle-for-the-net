@@ -1,19 +1,18 @@
 use bevy::{
     diagnostic::FrameTimeDiagnosticsPlugin,
+    light::DirectionalLightShadowMap,
     log::{Level, LogPlugin},
     prelude::*,
 };
 use bevy_dioxus_sync::{panels::DioxusPanel, plugins::DioxusPlugin};
 
-use crate::frontend::AppUi;
+use crate::{backend::BasePlugin, frontend::AppUi};
 
 pub mod backend;
 pub mod frontend;
 
 fn main() {
     let filter = format!(
-        // "info,{}=trace",
-        // "info,{}=trace,bevy_dioxus_hooks::query::command=error",
         "info,{}=trace,bevy_dioxus_hooks::query::command=error",
         env!("CARGO_PKG_NAME").replace("-", "_")
     );
@@ -36,6 +35,7 @@ fn main() {
     // let (speed_tx, speed_rx) = crossbeam::channel::unbounded();
 
     App::new()
+        .insert_resource(DirectionalLightShadowMap { size: 4096 })
         .add_plugins((default_plugins, FrameTimeDiagnosticsPlugin::default()))
         // .add_plugins(FpsTrackingPlugin)
         // .add_plugins(SpherePlugin)
@@ -46,7 +46,7 @@ fn main() {
                 // automation_speed: speed_rx,
             })),
         })
-        // .add_plugins(BasePlugin)
+        .add_plugins(BasePlugin)
         // .add_plugins(IdleTimePlugin { idle_tx, speed_tx })
         // .add_plugins(PlayerPlugin)
         // logs log level and filters
