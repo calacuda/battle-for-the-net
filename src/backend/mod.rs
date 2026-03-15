@@ -5,6 +5,7 @@ pub struct BasePlugin;
 impl Plugin for BasePlugin {
     fn build(&self, app: &mut App) {
         info!("added base plugin.");
+        app.add_plugins(bevy_ufbx::FbxPlugin::default());
         app.add_systems(Startup, setup);
     }
 }
@@ -39,8 +40,10 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
     commands.spawn(SceneRoot(
         asset_server.load(
-            GltfAssetLabel::Scene(0)
-                .from_asset("3d-models/kenney_animated-characters-2/Model/characterMedium.fbx"),
+            // GltfAssetLabel::Scene(0)
+            // .from_asset("3d-models/kenney_animated-characters-2/Model/characterMedium.fbx"),
+            "3d-models/kenney_animated-characters-2/Model/characterMedium.fbx#Scene0",
         ),
+        // ),
     ));
 }
