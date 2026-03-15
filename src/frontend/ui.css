@@ -1,0 +1,16 @@
+body {
+	color: white;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+}
+
+html,
+main {
+	height: calc(100% - 0.5rem);
+	width: calc(100% - 0.5rem);
+	overflow: hidden;
+	top: 0.25rem;
+	left: 0.25rem;
+}
