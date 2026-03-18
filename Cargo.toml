@@ -4,7 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-default = ["bevy/default"]
+default = [
+	# "desktop", 
+	"bevy/default"
+]
+# web = ["dioxus/web"]
+# desktop = ["dioxus/desktop"]
+# mobile = ["dioxus/mobile"]
 headless_ci = [
 	## 0.17
 	# "bevy/bevy_ci_testing",
