@@ -10,9 +10,12 @@ impl Plugin for BasePlugin {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let transform =
+        Transform::from_xyz(2.0, 2.7, 1.0).looking_at(Vec3::new(0.0, 0.3, 0.0), Vec3::Y);
+
     commands.spawn((
         Camera3d::default(),
-        Transform::from_xyz(2.0, 2.7, 1.0).looking_at(Vec3::new(0.0, 0.3, 0.0), Vec3::Y),
+        transform,
         // EnvironmentMapLight {
         //     diffuse_map: asset_server.load("environment_maps/pisa_diffuse_rgb9e5_zstd.ktx2"),
         //     specular_map: asset_server.load("environment_maps/pisa_specular_rgb9e5_zstd.ktx2"),
@@ -25,6 +28,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             shadows_enabled: true,
             ..default()
         },
+        transform,
         // This is a relatively small scene, so use tighter shadow
         // cascade bounds than the default for better quality.
         // We also adjusted the shadow map to be larger since we're

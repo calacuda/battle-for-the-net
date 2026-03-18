@@ -4,12 +4,11 @@ use bevy::{
     log::{Level, LogPlugin},
     prelude::*,
 };
-use bevy_dioxus_sync::{panels::DioxusPanel, plugins::DioxusPlugin};
+use bevy_skein::SkeinPlugin;
 
-use crate::{backend::BasePlugin, frontend::AppUi};
+use crate::base::BasePlugin;
 
-pub mod backend;
-pub mod frontend;
+pub mod base;
 
 fn main() {
     let filter = format!(
@@ -31,29 +30,24 @@ fn main() {
         .disable::<bevy::window::WindowPlugin>()
         .disable::<bevy::render::RenderPlugin>();
 
-    // let (idle_tx, idle_rx) = crossbeam::channel::unbounded();
-    // let (speed_tx, speed_rx) = crossbeam::channel::unbounded();
+    let log_log_info = move || {
+        info!("default log level is: {level}");
+        info!("default log filter: \"{filter}\"");
+    };
 
     App::new()
         .insert_resource(DirectionalLightShadowMap { size: 4096 })
         .insert_resource(ClearColor(Color::linear_rgb(0.1, 0.1, 0.1)))
-        .add_plugins((default_plugins, FrameTimeDiagnosticsPlugin::default()))
+        .add_plugins((
+            default_plugins,
+            SkeinPlugin::default(),
+            FrameTimeDiagnosticsPlugin::default(),
+        ))
         // .add_plugins(FpsTrackingPlugin)
         // .add_plugins(SpherePlugin)
-        .add_plugins(DioxusPlugin {
-            bevy_info_refresh_fps: 30,
-            main_window_ui: Some(DioxusPanel::new(AppUi {
-                // idle_time: idle_rx,
-                // automation_speed: speed_rx,
-            })),
-        })
         .add_plugins(BasePlugin)
-        // .add_plugins(IdleTimePlugin { idle_tx, speed_tx })
         // .add_plugins(PlayerPlugin)
         // logs log level and filters
-        .add_systems(Startup, move || {
-            info!("default log level is: {level}");
-            info!("default log filter: \"{filter}\"");
-        })
+        .add_systems(Startup, log_log_info)
         .run();
 }
