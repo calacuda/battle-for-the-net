@@ -2,3 +2,5 @@
 Cargo.lock
 assets.3d
 target.aarch64/
+target.aarch64.bak/
+cross-build-deps

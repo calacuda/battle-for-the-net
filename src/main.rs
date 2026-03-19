@@ -166,6 +166,14 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
     // mgr.add_map(helper::assets::MapInfos::new(
     //     &asset_server,
+    //     "zone-1.4.tmx",
+    //     // "A finite 'diamond' isometric map",
+    //     "version 4 of the map. map is 'diamond' isometric map and has layer groups",
+    //     default_callback,
+    // ));
+
+    // mgr.add_map(helper::assets::MapInfos::new(
+    //     &asset_server,
     //     "zone-1.2.tmx",
     //     "version 2 of the map. map is 'diamond' isometric map",
     //     default_callback,
