@@ -1,0 +1,64 @@
+{
+    "activeFile": "assets/zone-1.tmx",
+    "expandedProjectPaths": [
+        "assets/kenney_sketch-town-expansion",
+        "assets/kenney_sketch-town-expansion/Map",
+        "assets/kenney_sketch-town",
+        ".",
+        "assets",
+        "assets/kenney_sketch-town/Map"
+    ],
+    "fileStates": {
+        "assets/base-tiles.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 0.33,
+            "scaleInEditor": 0.125
+        },
+        "assets/expansion-tiles.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 0.33,
+            "scaleInEditor": 1
+        },
+        "assets/kenney_sketch-town-expansion/Map/map_tiles.tsx": {
+            "dynamicWrapping": true
+        },
+        "assets/kenney_sketch-town/Map/map_empty.tmx": {
+            "scale": 0.05732758620689655,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 2668.8721804511274,
+                "y": 3296.8421052631575
+            }
+        },
+        "assets/kenney_sketch-town/Map/map_tiles.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "assets/zone-1.tmx": {
+            "expandedGroupLayers": [
+                10,
+                8,
+                9
+            ],
+            "scale": 0.5,
+            "selectedLayer": 10,
+            "viewCenter": {
+                "x": -113131,
+                "y": -166742
+            }
+        }
+    },
+    "openFiles": [
+        "assets/base-tiles.tsx",
+        "assets/expansion-tiles.tsx",
+        "assets/zone-1.tmx"
+    ],
+    "project": "untitled.tiled-project",
+    "recentFiles": [
+        "assets/base-tiles.tsx",
+        "assets/expansion-tiles.tsx",
+        "assets/zone-1.tmx",
+        "assets/kenney_sketch-town/Map/map_empty.tmx"
+    ],
+    "tileset.lastUsedFormat": "tsx"
+}

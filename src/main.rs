@@ -12,6 +12,7 @@ use iyes_progress::{Progress, ProgressPlugin, ProgressReturningSystem, ProgressT
 use crate::base::BasePlugin;
 
 pub mod base;
+pub mod tiled;
 
 #[derive(AssetCollection, Resource)]
 struct SpriteTiles {
@@ -147,3 +148,14 @@ fn print_progress(
         );
     }
 }
+
+// fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
+//     commands.spawn(Camera2d);
+//
+//     let map_handle = tiled::TiledMapHandle(asset_server.load("zone-1.tmx"));
+//
+//     commands.spawn(tiled::TiledMapBundle {
+//         tiled_map: map_handle,
+//         ..Default::default()
+//     });
+// }
