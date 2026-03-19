@@ -1,3 +1,4 @@
 /target
 Cargo.lock
 assets.3d
+target.aarch64/

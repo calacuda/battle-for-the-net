@@ -1,24 +1,25 @@
-// use crate::{base::BasePlugin, tiled::TiledMapPlugin};
 use bevy::{
-    diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin},
+    diagnostic::{
+        // DiagnosticsStore,
+        FrameTimeDiagnosticsPlugin,
+    },
     light::DirectionalLightShadowMap,
     log::{Level, LogPlugin},
     prelude::*,
 };
 use bevy_ecs_tiled::prelude::*;
+use bevy_skein::SkeinPlugin;
+
+use crate::helper::DisplayMapPlugin;
+
 // use bevy_ecs_tilemap::prelude::*;
 // use bevy_ecs_tiled::debug::*;
-use bevy_skein::SkeinPlugin;
-use iyes_progress::{Progress, ProgressTracker};
-
-use crate::helper::HelperPlugin;
-
+// use iyes_progress::{Progress, ProgressTracker};
 // use bevy_spritefusion::prelude::*;
 // use bevy_asset_loader::prelude::*;
 
 // pub mod base;
 pub mod helper;
-// pub mod tiled;
 
 // #[derive(AssetCollection, Resource)]
 // struct SpriteTiles {
@@ -105,20 +106,16 @@ fn main() {
             //     .with_state_transition(AssetLoading::Loading, AssetLoading::Loaded),
         ))
         .add_plugins(TiledPlugin::default())
-        .add_plugins(HelperPlugin)
+        .add_plugins(DisplayMapPlugin)
         // .add_plugins(TiledDebugPluginGroup)
+        // .add_plugins(BasePlugin)
         .add_systems(Startup, (startup,))
         .add_systems(Update, switch_map)
-        // .add_plugins(TilemapPlugin)
-        // .add_plugins(TiledMapPlugin)
         // .init_state::<AssetLoading>()
         // .add_loading_state(
         //     LoadingState::new(AssetLoading::Loading).continue_to_state(AssetLoading::Loaded), // .load_collection::<WorldTiles>()
         //                                                                                       // .load_collection::<SpriteTiles>(),
         // )
-        // .add_plugins(FpsTrackingPlugin)
-        // .add_plugins(SpherePlugin)
-        // .add_plugins(BasePlugin)
         // .add_systems(
         //     OnEnter(AssetLoading::Loaded),
         //     || -> Progress { true.into() }.track_progress::<AssetLoading>(),
@@ -133,7 +130,6 @@ fn main() {
         //         .run_if(in_state(AssetLoading::Loading))
         //         .after(LoadingStateSet(AssetLoading::Loading)),
         // )
-        // .add_plugins(PlayerPlugin)
         // logs log level and filters
         .add_systems(Startup, log_log_info)
         .run();
@@ -174,12 +170,6 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     //     "version 2 of the map. map is 'diamond' isometric map",
     //     default_callback,
     // ));
-    // mgr.add_map(helper::assets::MapInfos::new(
-    //     &asset_server,
-    //     "zone-1.tmx",
-    //     "An infinite 'diamond' isometric map",
-    //     default_callback,
-    // ));
     mgr.cycle_map(&mut commands);
 
     commands.insert_resource(mgr);
@@ -195,25 +185,25 @@ fn switch_map(
     }
 }
 
-fn track_fake_long_task() -> Progress {
-    false.into()
-}
-
-fn print_progress(
-    progress: Res<ProgressTracker<AssetLoading>>,
-    diagnostics: Res<DiagnosticsStore>,
-    mut last_done: Local<u32>,
-) {
-    let progress = progress.get_global_progress();
-    if progress.done > *last_done {
-        *last_done = progress.done;
-        info!(
-            "[Frame {}] Changed progress: {:?}",
-            diagnostics
-                .get(&FrameTimeDiagnosticsPlugin::FRAME_COUNT)
-                .map(|diagnostic| diagnostic.value().unwrap_or(0.))
-                .unwrap_or(0.),
-            progress
-        );
-    }
-}
+// fn track_fake_long_task() -> Progress {
+//     false.into()
+// }
+//
+// fn print_progress(
+//     progress: Res<ProgressTracker<AssetLoading>>,
+//     diagnostics: Res<DiagnosticsStore>,
+//     mut last_done: Local<u32>,
+// ) {
+//     let progress = progress.get_global_progress();
+//     if progress.done > *last_done {
+//         *last_done = progress.done;
+//         info!(
+//             "[Frame {}] Changed progress: {:?}",
+//             diagnostics
+//                 .get(&FrameTimeDiagnosticsPlugin::FRAME_COUNT)
+//                 .map(|diagnostic| diagnostic.value().unwrap_or(0.))
+//                 .unwrap_or(0.),
+//             progress
+//         );
+//     }
+// }

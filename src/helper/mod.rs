@@ -9,9 +9,9 @@ pub mod camera;
 pub mod map;
 
 #[derive(Default)]
-pub struct HelperPlugin;
+pub struct DisplayMapPlugin;
 
-impl Plugin for HelperPlugin {
+impl Plugin for DisplayMapPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.add_plugins((
             EguiPlugin::default(),
