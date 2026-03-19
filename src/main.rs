@@ -106,7 +106,7 @@ fn main() {
         ))
         .add_plugins(TiledPlugin::default())
         .add_plugins(HelperPlugin)
-        .add_plugins(TiledDebugPluginGroup)
+        // .add_plugins(TiledDebugPluginGroup)
         .add_systems(Startup, (startup,))
         .add_systems(Update, switch_map)
         // .add_plugins(TilemapPlugin)
@@ -164,15 +164,16 @@ fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     mgr.add_map(helper::assets::MapInfos::new(
         &asset_server,
         "zone-1.3.tmx",
-        "A finite 'diamond' isometric map",
+        // "A finite 'diamond' isometric map",
+        "version 3 of the map. map is 'diamond' isometric map",
         default_callback,
     ));
-    mgr.add_map(helper::assets::MapInfos::new(
-        &asset_server,
-        "zone-1.2.tmx",
-        "An infinite 'diamond' isometric map",
-        default_callback,
-    ));
+    // mgr.add_map(helper::assets::MapInfos::new(
+    //     &asset_server,
+    //     "zone-1.2.tmx",
+    //     "version 2 of the map. map is 'diamond' isometric map",
+    //     default_callback,
+    // ));
     // mgr.add_map(helper::assets::MapInfos::new(
     //     &asset_server,
     //     "zone-1.tmx",
