@@ -1,12 +1,12 @@
 {
-    "activeFile": "assets/zone-1.tmx",
+    "activeFile": "",
     "expandedProjectPaths": [
-        "assets/kenney_sketch-town-expansion",
         "assets/kenney_sketch-town-expansion/Map",
-        "assets/kenney_sketch-town",
+        "assets/kenney_sketch-town/Map",
         ".",
-        "assets",
-        "assets/kenney_sketch-town/Map"
+        "assets/kenney_sketch-town-expansion",
+        "assets/kenney_sketch-town",
+        "assets"
     ],
     "fileStates": {
         "assets/base-tiles.tsx": {
@@ -49,9 +49,6 @@
         }
     },
     "openFiles": [
-        "assets/base-tiles.tsx",
-        "assets/expansion-tiles.tsx",
-        "assets/zone-1.tmx"
     ],
     "project": "untitled.tiled-project",
     "recentFiles": [
