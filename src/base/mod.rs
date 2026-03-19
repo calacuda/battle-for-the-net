@@ -8,18 +8,23 @@ impl Plugin for BasePlugin {
         info!("added base plugin.");
         // app.add_systems(Startup, setup);
         app.add_systems(Startup, startup);
+        app.add_systems(Update, crate::camera::movement);
     }
 }
 
 fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(Camera2d);
 
-    let map_handle = crate::tiled::TiledMapHandle(asset_server.load("zone-1.tmx"));
+    let map_handle = crate::tiled::TiledMapHandle(asset_server.load("zone-1.3.tmx"));
 
-    commands.spawn(crate::tiled::TiledMapBundle {
-        tiled_map: map_handle,
-        ..Default::default()
-    });
+    commands.spawn((
+        crate::tiled::TiledMapBundle {
+            tiled_map: map_handle,
+            // transform: Transform::from_xyz(0.0, -1.0, 0.0),
+            ..Default::default()
+        },
+        // ,
+    ));
 }
 
 // fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {

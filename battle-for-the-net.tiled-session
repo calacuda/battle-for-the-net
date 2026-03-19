@@ -1,0 +1,111 @@
+{
+    "activeFile": "assets/zone-1.3.tmx",
+    "expandedProjectPaths": [
+        "assets",
+        "assets/kenney_sketch-town-expansion/Map",
+        "assets/kenney_sketch-town-expansion",
+        ".",
+        "assets/kenney_sketch-town/Map",
+        "assets/kenney_sketch-town"
+    ],
+    "fileStates": {
+        "": {
+            "scaleInDock": 0.25
+        },
+        "assets/base-tiles.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 0.33,
+            "scaleInEditor": 0.125
+        },
+        "assets/expansion-tiles.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 0.33,
+            "scaleInEditor": 1
+        },
+        "assets/kenney_sketch-town-expansion/Map/map_tiles.tsx": {
+            "dynamicWrapping": true
+        },
+        "assets/kenney_sketch-town/Map/map_empty.tmx": {
+            "scale": 0.05732758620689655,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 2668.8721804511274,
+                "y": 3296.8421052631575
+            }
+        },
+        "assets/kenney_sketch-town/Map/map_tiles.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        },
+        "assets/zone-1.2.tmx": {
+            "expandedGroupLayers": [
+                8,
+                10,
+                9
+            ],
+            "scale": 0.015625,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": -16960,
+                "y": 686912
+            }
+        },
+        "assets/zone-1.2.tmx#base-tiles": {
+            "dynamicWrapping": false,
+            "scaleInDock": 0.25
+        },
+        "assets/zone-1.2.tmx#expansion-tiles": {
+            "scaleInDock": 0.25
+        },
+        "assets/zone-1.3.tmx": {
+            "expandedGroupLayers": [
+                9,
+                8,
+                10
+            ],
+            "scale": 0.5,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 2746,
+                "y": 1542
+            }
+        },
+        "assets/zone-1.3.tmx#base-tiles": {
+            "scaleInDock": 0.25
+        },
+        "assets/zone-1.3.tmx#expansion-tiles": {
+            "scaleInDock": 0.25
+        },
+        "assets/zone-1.tmx": {
+            "expandedGroupLayers": [
+                8,
+                9,
+                10
+            ],
+            "scale": 0.5,
+            "selectedLayer": 10,
+            "viewCenter": {
+                "x": -113131,
+                "y": -166746
+            }
+        },
+        "assets/zone-1.tmx#expansion-tiles": {
+            "dynamicWrapping": true
+        }
+    },
+    "map.lastUsedFormat": "tmx",
+    "openFiles": [
+        "assets/zone-1.3.tmx"
+    ],
+    "project": "battle-for-the-net.tiled-project",
+    "recentFiles": [
+        "assets/zone-1.3.tmx",
+        "assets/zone-1.2.tmx",
+        "assets/zone-1.tmx",
+        "assets/base-tiles.tsx",
+        "assets/expansion-tiles.tsx",
+        "assets/kenney_sketch-town/Map/map_empty.tmx"
+    ],
+    "resizeMap.removeObjects": false,
+    "tileset.lastUsedFormat": "tsx"
+}
