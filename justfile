@@ -27,10 +27,13 @@ gh_watch:
 #   WEBKIT_DISABLE_COMPOSITING_MODE=1 /usr/bin/dx serve --platform desktop --hot-reload true --verbose # --hot-patch
 
 run:
-  WEBKIT_DISABLE_COMPOSITING_MODE=1 /usr/bin/dx run --platform desktop --verbose # --hot-patch
+  # WEBKIT_DISABLE_COMPOSITING_MODE=1 /usr/bin/dx run --platform desktop --verbose # --hot-patch
 
 release-run:
-  WEBKIT_DISABLE_COMPOSITING_MODE=1 /usr/bin/dx run --platform desktop --verbose --release
+  # WEBKIT_DISABLE_COMPOSITING_MODE=1 /usr/bin/dx run --platform desktop --verbose --release
 
 check:
-  /usr/bin/dx check --platform desktop
+  # /usr/bin/dx check --platform desktop
+
+build-for-rp5:
+  SYSROOT=$(pwd)/cross-build-deps/aarch64/ PKG_CONFIG_SYSROOT_DIR=${SYSROOT} PKG_CONFIG_LIBDIR=${SYSROOT}/usr/lib/aarch64-linux-gnu/pkgconfig:${SYSROOT}/usr/share/pkgconfig PKG_CONFIG_PATH=${SYSROOT}/usr/lib/aarch64-linux-gnu/pkgconfig/ PKG_CONFIG_ALLOW_CROSS=1 LD_LIBRARY_PATH=${SYSROOT}/lib/ cargo zigbuild --target aarch64-unknown-linux-gnu.2.40 -r --target-dir ./target.aarch64
