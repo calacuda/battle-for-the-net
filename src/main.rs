@@ -58,12 +58,12 @@ pub mod helper;
 //     pub tiles: Handle<Image>,
 // }
 
-#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
-enum AssetLoading {
-    #[default]
-    Loading,
-    Loaded,
-}
+// #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
+// enum AssetLoading {
+//     #[default]
+//     Loading,
+//     Loaded,
+// }
 
 fn main() {
     let filter = format!(

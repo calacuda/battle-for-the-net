@@ -37,3 +37,7 @@ check:
 
 build-for-rp5:
   SYSROOT=$(pwd)/cross-build-deps/aarch64/ PKG_CONFIG_SYSROOT_DIR=${SYSROOT} PKG_CONFIG_LIBDIR=${SYSROOT}/usr/lib/aarch64-linux-gnu/pkgconfig:${SYSROOT}/usr/share/pkgconfig PKG_CONFIG_PATH=${SYSROOT}/usr/lib/aarch64-linux-gnu/pkgconfig/ PKG_CONFIG_ALLOW_CROSS=1 LD_LIBRARY_PATH=${SYSROOT}/lib/ cargo zigbuild --target aarch64-unknown-linux-gnu.2.40 -r
+
+send-to-rp5:
+  scp ./target/aarch64-unknown-linux-gnu/release/battle-for-the-net  root@192.168.1.113:/roms/ports/BEVY-TEST/BEVY-TEST/
+  scp ./assets/*.glb root@192.168.1.113:/roms/ports/BEVY-TEST/BEVY-TEST/assets/
