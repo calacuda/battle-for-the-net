@@ -23,6 +23,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         DirectionalLight {
             shadows_enabled: true,
+            illuminance: 1000.,
             ..default()
         },
         // This is a relatively small scene, so use tighter shadow
@@ -35,6 +36,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         }
         .build(),
+        Transform::from_xyz(10.5, 10.5, 42.).looking_at(Vec3::new(0., 0., 0.), Vec3::Y),
     ));
 
     let transform = Transform::from_xyz(0.0, 0.0, 0.0);
