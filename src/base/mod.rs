@@ -1,8 +1,24 @@
-// use bevy::{light::CascadeShadowConfigBuilder, prelude::*};
+use avian3d::prelude::*;
 use bevy::{light::CascadeShadowConfigBuilder, prelude::*};
+use bevy_tnua::{
+    builtins::{TnuaBuiltinJumpConfig, TnuaBuiltinWalkConfig},
+    prelude::*,
+};
+use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
+// use bevy_tnua_avian3d::prelude::*;
+
+use crate::{ControlScheme, ControlSchemeConfig};
 
 #[derive(Component)]
 pub struct PlayerMeshMark;
+
+#[derive(PhysicsLayer, Default)]
+pub enum GameCollisionLayer {
+    #[default]
+    Default,
+    Player,
+    Terrain,
+}
 
 pub struct BasePlugin;
 
@@ -15,7 +31,11 @@ impl Plugin for BasePlugin {
     }
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut control_scheme_configs: ResMut<Assets<ControlSchemeConfig>>,
+) {
     commands.spawn((
         Camera3d::default(),
         Transform::from_xyz(21., 21., 42.).looking_at(Vec3::new(0., 0., 0.), Vec3::Y),
@@ -39,15 +59,72 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         Transform::from_xyz(10.5, 10.5, 42.).looking_at(Vec3::new(0., 0., 0.), Vec3::Y),
     ));
 
-    let transform = Transform::from_xyz(0.0, 0.0, 0.0);
+    let transform = Transform::from_xyz(0.0, 7.5, 0.0);
+    // let mesh_handle: Handle<Mesh> = asset_server.load("net-lv-01.glb#Scene0");
+    let mesh_handle: Handle<Mesh> = asset_server.load("net-lv-01.glb#Mesh0");
+    let scene_handle: Handle<Scene> = asset_server.load("net-lv-01.glb#Scene0");
 
+    // terain
     commands.spawn((
-        SceneRoot(asset_server.load("net-lv-01.glb#Scene0")),
-        transform,
+        SceneRoot(scene_handle),
+        Mesh3d(mesh_handle),
+        // ColliderConstructor::ConvexDecompositionFromMesh,
+        // Collider::half_space(Vec3::Y * 2.0),
+        ColliderConstructorHierarchy::new(
+            ColliderConstructor::ConvexDecompositionFromMeshWithConfig(VhacdParameters {
+                resolution: 256,
+                concavity: 0.00025,
+                ..default()
+            }),
+        )
+        .with_default_layers(CollisionLayers::new(
+            GameCollisionLayer::Terrain,
+            [GameCollisionLayer::Player],
+        )),
+        RigidBody::Static,
+        // CollisionLayers::new(GameCollisionLayer::Terrain, GameCollisionLayer::Player),
+        // transform,
     ));
+    // player
     commands.spawn((
         SceneRoot(asset_server.load("temp-char.glb#Scene0")),
+        Mesh3d(asset_server.load("temp-char.glb#Mesh0")),
+        // ColliderConstructor::ConvexDecompositionFromMesh,
+        RigidBody::Dynamic,
+        TnuaController::<ControlScheme>::default(),
+        // Restitution::new(0.0),
+        Friction::ZERO.with_combine_rule(CoefficientCombine::Min),
+        Restitution::ZERO.with_combine_rule(CoefficientCombine::Min),
+        // GravityScale(2.0),
+        TnuaConfig::<ControlScheme>(control_scheme_configs.add(ControlSchemeConfig {
+            basis: TnuaBuiltinWalkConfig {
+                // The `float_height` must be greater (even if by little) from the distance between
+                // the character's center and the lowest point of its collider.
+                float_height: 2.5,
+                // `TnuaBuiltinWalk` has many other fields for customizing the movement - but they
+                // have sensible defaults. Refer to the `TnuaBuiltinWalk`'s documentation to learn
+                // what they do.
+                ..Default::default()
+            },
+            jump: TnuaBuiltinJumpConfig {
+                // The height is the only mandatory field of the jump action.
+                height: 4.0,
+                // `TnuaBuiltinJump` also has customization fields with sensible defaults.
+                ..Default::default()
+            },
+        })),
+        // A sensor shape is not strictly necessary, but without it we'll get weird results.
+        // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
+        // Tnua can fix the rotation, but the character will still get rotated before it can do so.
+        // By locking the rotation we can prevent this.
+        LockedAxes::ROTATION_LOCKED,
         transform,
+        // CollisionLayers::new(GameCollisionLayer::Player, GameCollisionLayer::Terrain),
+        ColliderConstructorHierarchy::new(ColliderConstructor::ConvexHullFromMesh)
+            .with_default_layers(CollisionLayers::new(
+                GameCollisionLayer::Player,
+                [GameCollisionLayer::Terrain],
+            )),
         PlayerMeshMark,
     ));
 }
@@ -69,52 +146,98 @@ pub fn camera_track_player(
     }
 }
 
-pub fn player_movement(
-    time: Res<Time>,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut player_transform: Single<Option<&mut Transform>, With<PlayerMeshMark>>,
-    mut query: Query<&mut Projection, (With<Camera>, Without<PlayerMeshMark>)>,
+// pub fn player_movement(
+//     time: Res<Time>,
+//     keyboard_input: Res<ButtonInput<KeyCode>>,
+//     mut player_transform: Single<Option<&mut Transform>, With<PlayerMeshMark>>,
+//     mut query: Query<&mut Projection, (With<Camera>, Without<PlayerMeshMark>)>,
+// ) {
+//     let Some(player_transform) = player_transform.as_mut() else {
+//         warn!("player not found");
+//         return;
+//     };
+//
+//     let mut direction = Vec3::ZERO;
+//
+//     if keyboard_input.pressed(KeyCode::KeyA) {
+//         direction -= Vec3::new(1.0, 0.0, 0.0);
+//     }
+//
+//     if keyboard_input.pressed(KeyCode::KeyD) {
+//         direction += Vec3::new(1.0, 0.0, 0.0);
+//     }
+//
+//     if keyboard_input.pressed(KeyCode::KeyW) {
+//         direction -= Vec3::new(0.0, 0.0, 1.0);
+//     }
+//
+//     if keyboard_input.pressed(KeyCode::KeyS) {
+//         direction += Vec3::new(0.0, 0.0, 1.0);
+//     }
+//
+//     player_transform.translation += time.delta_secs() * direction * 10.;
+//
+//     for mut projection in query.iter_mut() {
+//         let Projection::Perspective(ortho) = &mut *projection else {
+//             continue;
+//         };
+//
+//         if keyboard_input.pressed(KeyCode::KeyZ) {
+//             ortho.fov += 0.1;
+//         }
+//
+//         if keyboard_input.pressed(KeyCode::KeyX) {
+//             ortho.fov -= 0.1;
+//         }
+//
+//         if ortho.fov < 0.5 {
+//             ortho.fov = 0.5;
+//         }
+//     }
+// }
+
+fn player_movement(
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mut query: Query<&mut TnuaController<ControlScheme>>,
 ) {
-    let Some(player_transform) = player_transform.as_mut() else {
-        warn!("player not found");
+    let Ok(mut controller) = query.single_mut() else {
+        warn!("TnuaController not found, therefor not running player_movement");
         return;
     };
+    controller.initiate_action_feeding();
 
     let mut direction = Vec3::ZERO;
 
-    if keyboard_input.pressed(KeyCode::KeyA) {
-        direction -= Vec3::new(1.0, 0.0, 0.0);
+    if keyboard.pressed(KeyCode::ArrowUp) {
+        // info!("moving up");
+        direction -= Vec3::Z;
+    }
+    if keyboard.pressed(KeyCode::ArrowDown) {
+        // info!("moving down");
+        direction += Vec3::Z;
+    }
+    if keyboard.pressed(KeyCode::ArrowLeft) {
+        // info!("moving left");
+        direction -= Vec3::X;
+    }
+    if keyboard.pressed(KeyCode::ArrowRight) {
+        // info!("moving right");
+        direction += Vec3::X;
     }
 
-    if keyboard_input.pressed(KeyCode::KeyD) {
-        direction += Vec3::new(1.0, 0.0, 0.0);
-    }
+    // Set the basis every frame. Even if the player doesn't move - just use `desired_velocity:
+    // Vec3::ZERO` to reset the previous frame's input.
+    controller.basis = TnuaBuiltinWalk {
+        // The `desired_motion` determines how the character will move.
+        desired_motion: direction.normalize_or_zero(),
+        // The other field is `desired_forward` - but since the character model is a capsule we
+        // don't care the direction its "forward" is pointing.
+        ..Default::default()
+    };
 
-    if keyboard_input.pressed(KeyCode::KeyW) {
-        direction -= Vec3::new(0.0, 0.0, 1.0);
-    }
-
-    if keyboard_input.pressed(KeyCode::KeyS) {
-        direction += Vec3::new(0.0, 0.0, 1.0);
-    }
-
-    player_transform.translation += time.delta_secs() * direction * 10.;
-
-    for mut projection in query.iter_mut() {
-        let Projection::Perspective(ortho) = &mut *projection else {
-            continue;
-        };
-
-        if keyboard_input.pressed(KeyCode::KeyZ) {
-            ortho.fov += 0.1;
-        }
-
-        if keyboard_input.pressed(KeyCode::KeyX) {
-            ortho.fov -= 0.1;
-        }
-
-        if ortho.fov < 0.5 {
-            ortho.fov = 0.5;
-        }
+    // Feed the jump action every frame as long as the player holds the jump button. If the player
+    // stops holding the jump button, simply stop feeding the action.
+    if keyboard.pressed(KeyCode::Space) {
+        controller.action(ControlScheme::Jump(Default::default()));
     }
 }

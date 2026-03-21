@@ -106,6 +106,9 @@ bevy_asset_loader = { version = "0.25.0", features = ["2d"] }
 # thiserror = "2.0"
 bevy_ecs_tiled = { version = "0.11.3", features = ["debug"] }
 bevy-inspector-egui = "0.36.0"
+avian3d = "0.6.0"
+bevy-tnua-avian3d = "0.11.0"
+bevy-tnua = "0.30.0"
 
 [profile.dev]
 opt-level = 1
