@@ -1,9 +1,9 @@
 use bevy::{
-    color::palettes::css::GREEN,
+    // color::palettes::css::GREEN,
     diagnostic::FrameTimeDiagnosticsPlugin,
     light::DirectionalLightShadowMap,
     log::{Level, LogPlugin},
-    pbr::wireframe::{WireframeConfig, WireframePlugin},
+    // pbr::wireframe::{WireframeConfig, WireframePlugin},
     prelude::*,
 };
 // use bevy_ecs_tiled::prelude::*;
@@ -76,7 +76,7 @@ pub mod helper;
 #[derive(TnuaScheme)]
 #[scheme(basis = TnuaBuiltinWalk)]
 pub enum ControlScheme {
-    Jump(TnuaBuiltinJump),
+    // Jump(TnuaBuiltinJump),
 }
 
 fn main() {
@@ -114,23 +114,23 @@ fn main() {
             SkeinPlugin::default(),
             FrameTimeDiagnosticsPlugin::default(),
             PhysicsPlugins::default(),
-            TnuaControllerPlugin::<ControlScheme>::new(FixedUpdate),
-            TnuaAvian3dPlugin::new(FixedUpdate),
-            WireframePlugin::default(),
+            TnuaControllerPlugin::<ControlScheme>::new(Update),
+            TnuaAvian3dPlugin::new(Update),
+            // WireframePlugin::default(),
             // ProgressPlugin::<AssetLoading>::new()
             //     .with_state_transition(AssetLoading::Loading, AssetLoading::Loaded),
         ))
         .insert_resource(Gravity(Vec3::NEG_Y * 19.6))
-        .insert_resource(WireframeConfig {
-            // The global wireframe config enables drawing of wireframes on every mesh,
-            // except those with `NoWireframe`. Meshes with `Wireframe` will always have a wireframe,
-            // regardless of the global configuration.
-            global: true,
-            // Controls the default color of all wireframes. Used as the default color for global wireframes.
-            // Can be changed per mesh using the `WireframeColor` component.
-            default_color: GREEN.into(),
-            ..default()
-        })
+        // .insert_resource(WireframeConfig {
+        //     // The global wireframe config enables drawing of wireframes on every mesh,
+        //     // except those with `NoWireframe`. Meshes with `Wireframe` will always have a wireframe,
+        //     // regardless of the global configuration.
+        //     global: true,
+        //     // Controls the default color of all wireframes. Used as the default color for global wireframes.
+        //     // Can be changed per mesh using the `WireframeColor` component.
+        //     default_color: GREEN.into(),
+        //     ..default()
+        // })
         // .add_plugins(TiledPlugin::default())
         .add_plugins(DisplayMapPlugin)
         // .add_plugins(TiledDebugPluginGroup)

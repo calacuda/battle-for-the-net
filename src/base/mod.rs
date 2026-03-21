@@ -1,10 +1,11 @@
-use avian3d::prelude::*;
+use avian3d::{math::PI, prelude::*};
 use bevy::{light::CascadeShadowConfigBuilder, prelude::*};
 use bevy_tnua::{
     builtins::{TnuaBuiltinJumpConfig, TnuaBuiltinWalkConfig},
     prelude::*,
 };
 use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
+// use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
 // use bevy_tnua_avian3d::prelude::*;
 
 use crate::{ControlScheme, ControlSchemeConfig};
@@ -27,7 +28,7 @@ impl Plugin for BasePlugin {
         info!("added base plugin.");
         app.add_systems(Startup, setup);
         app.add_systems(Update, camera_track_player);
-        app.add_systems(Update, player_movement);
+        app.add_systems(Update, player_movement.in_set(TnuaUserControlsSystems));
     }
 }
 
@@ -59,7 +60,7 @@ fn setup(
         Transform::from_xyz(10.5, 10.5, 42.).looking_at(Vec3::new(0., 0., 0.), Vec3::Y),
     ));
 
-    let transform = Transform::from_xyz(0.0, 7.5, 0.0);
+    let transform = Transform::from_xyz(0.0, 1.5, 0.0);
     // let mesh_handle: Handle<Mesh> = asset_server.load("net-lv-01.glb#Scene0");
     let mesh_handle: Handle<Mesh> = asset_server.load("net-lv-01.glb#Mesh0");
     let scene_handle: Handle<Scene> = asset_server.load("net-lv-01.glb#Scene0");
@@ -92,9 +93,8 @@ fn setup(
         // ColliderConstructor::ConvexDecompositionFromMesh,
         RigidBody::Dynamic,
         TnuaController::<ControlScheme>::default(),
-        // Restitution::new(0.0),
-        Friction::ZERO.with_combine_rule(CoefficientCombine::Min),
-        Restitution::ZERO.with_combine_rule(CoefficientCombine::Min),
+        Friction::ZERO.with_combine_rule(CoefficientCombine::Multiply),
+        Restitution::ZERO.with_combine_rule(CoefficientCombine::Multiply),
         // GravityScale(2.0),
         TnuaConfig::<ControlScheme>(control_scheme_configs.add(ControlSchemeConfig {
             basis: TnuaBuiltinWalkConfig {
@@ -104,22 +104,24 @@ fn setup(
                 // `TnuaBuiltinWalk` has many other fields for customizing the movement - but they
                 // have sensible defaults. Refer to the `TnuaBuiltinWalk`'s documentation to learn
                 // what they do.
+                // speed: 50.,
+                // max_slope: 2.0 * PI / 3.,
+                // acceleration: 1.,
                 ..Default::default()
             },
-            jump: TnuaBuiltinJumpConfig {
-                // The height is the only mandatory field of the jump action.
-                height: 4.0,
-                // `TnuaBuiltinJump` also has customization fields with sensible defaults.
-                ..Default::default()
-            },
+            // jump: TnuaBuiltinJumpConfig {
+            //     // The height is the only mandatory field of the jump action.
+            //     height: 4.0,
+            //     // `TnuaBuiltinJump` also has customization fields with sensible defaults.
+            //     ..Default::default()
+            // },
         })),
         // A sensor shape is not strictly necessary, but without it we'll get weird results.
-        // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
+        TnuaAvian3dSensorShape(Collider::cylinder(0.49, 1.0)),
         // Tnua can fix the rotation, but the character will still get rotated before it can do so.
         // By locking the rotation we can prevent this.
         LockedAxes::ROTATION_LOCKED,
         transform,
-        // CollisionLayers::new(GameCollisionLayer::Player, GameCollisionLayer::Terrain),
         ColliderConstructorHierarchy::new(ColliderConstructor::ConvexHullFromMesh)
             .with_default_layers(CollisionLayers::new(
                 GameCollisionLayer::Player,
@@ -146,59 +148,10 @@ pub fn camera_track_player(
     }
 }
 
-// pub fn player_movement(
-//     time: Res<Time>,
-//     keyboard_input: Res<ButtonInput<KeyCode>>,
-//     mut player_transform: Single<Option<&mut Transform>, With<PlayerMeshMark>>,
-//     mut query: Query<&mut Projection, (With<Camera>, Without<PlayerMeshMark>)>,
-// ) {
-//     let Some(player_transform) = player_transform.as_mut() else {
-//         warn!("player not found");
-//         return;
-//     };
-//
-//     let mut direction = Vec3::ZERO;
-//
-//     if keyboard_input.pressed(KeyCode::KeyA) {
-//         direction -= Vec3::new(1.0, 0.0, 0.0);
-//     }
-//
-//     if keyboard_input.pressed(KeyCode::KeyD) {
-//         direction += Vec3::new(1.0, 0.0, 0.0);
-//     }
-//
-//     if keyboard_input.pressed(KeyCode::KeyW) {
-//         direction -= Vec3::new(0.0, 0.0, 1.0);
-//     }
-//
-//     if keyboard_input.pressed(KeyCode::KeyS) {
-//         direction += Vec3::new(0.0, 0.0, 1.0);
-//     }
-//
-//     player_transform.translation += time.delta_secs() * direction * 10.;
-//
-//     for mut projection in query.iter_mut() {
-//         let Projection::Perspective(ortho) = &mut *projection else {
-//             continue;
-//         };
-//
-//         if keyboard_input.pressed(KeyCode::KeyZ) {
-//             ortho.fov += 0.1;
-//         }
-//
-//         if keyboard_input.pressed(KeyCode::KeyX) {
-//             ortho.fov -= 0.1;
-//         }
-//
-//         if ortho.fov < 0.5 {
-//             ortho.fov = 0.5;
-//         }
-//     }
-// }
-
 fn player_movement(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut query: Query<&mut TnuaController<ControlScheme>>,
+    mut vel: Query<(&mut LinearVelocity, &mut AngularVelocity), With<PlayerMeshMark>>,
 ) {
     let Ok(mut controller) = query.single_mut() else {
         warn!("TnuaController not found, therefor not running player_movement");
@@ -232,12 +185,22 @@ fn player_movement(
         desired_motion: direction.normalize_or_zero(),
         // The other field is `desired_forward` - but since the character model is a capsule we
         // don't care the direction its "forward" is pointing.
+        desired_forward: Dir3::new(direction).ok(),
         ..Default::default()
     };
 
-    // Feed the jump action every frame as long as the player holds the jump button. If the player
-    // stops holding the jump button, simply stop feeding the action.
-    if keyboard.pressed(KeyCode::Space) {
-        controller.action(ControlScheme::Jump(Default::default()));
+    if direction == Vec3::ZERO {
+        // controller.basis_config
+        for (mut lin_velocity, mut ang_velocity) in vel.iter_mut() {
+            info!("{} -> {}", lin_velocity.0, ang_velocity.0);
+            lin_velocity.0 = Vec3::ZERO;
+            ang_velocity.0 = Vec3::ZERO;
+        }
     }
+
+    // // Feed the jump action every frame as long as the player holds the jump button. If the player
+    // // stops holding the jump button, simply stop feeding the action.
+    // if keyboard.pressed(KeyCode::Space) {
+    //     controller.action(ControlScheme::Jump(Default::default()));
+    // }
 }
