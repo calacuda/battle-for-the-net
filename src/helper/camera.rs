@@ -19,33 +19,33 @@ pub fn movement(
         }
 
         if keyboard_input.pressed(KeyCode::KeyW) {
-            direction += Vec3::new(0.0, 1.0, 0.0);
+            direction -= Vec3::new(0.0, 0.0, 1.0);
         }
 
         if keyboard_input.pressed(KeyCode::KeyS) {
-            direction -= Vec3::new(0.0, 1.0, 0.0);
+            direction += Vec3::new(0.0, 0.0, 1.0);
         }
 
-        let Projection::Orthographic(ortho) = &mut *projection else {
+        let Projection::Perspective(ortho) = &mut *projection else {
             continue;
         };
 
         if keyboard_input.pressed(KeyCode::KeyZ) {
-            ortho.scale += 0.1;
+            ortho.fov += 0.1;
         }
 
         if keyboard_input.pressed(KeyCode::KeyX) {
-            ortho.scale -= 0.1;
+            ortho.fov -= 0.1;
         }
 
-        if ortho.scale < 0.5 {
-            ortho.scale = 0.5;
+        if ortho.fov < 0.5 {
+            ortho.fov = 0.5;
         }
 
-        let z = transform.translation.z;
-        transform.translation += time.delta_secs() * direction * 500.;
+        // let z = transform.translation.z;
+        transform.translation += time.delta_secs() * direction * 50.;
         // Important! We need to restore the Z values when moving the camera around.
         // Bevy has a specific camera setup and this can mess with how our layers are shown.
-        transform.translation.z = z;
+        // transform.translation.z = z;
     }
 }

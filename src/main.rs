@@ -1,16 +1,13 @@
 use bevy::{
-    diagnostic::{
-        // DiagnosticsStore,
-        FrameTimeDiagnosticsPlugin,
-    },
+    diagnostic::FrameTimeDiagnosticsPlugin,
     light::DirectionalLightShadowMap,
     log::{Level, LogPlugin},
     prelude::*,
 };
-use bevy_ecs_tiled::prelude::*;
+// use bevy_ecs_tiled::prelude::*;
 use bevy_skein::SkeinPlugin;
 
-use crate::helper::DisplayMapPlugin;
+use crate::{base::BasePlugin, helper::DisplayMapPlugin};
 
 // use bevy_ecs_tilemap::prelude::*;
 // use bevy_ecs_tiled::debug::*;
@@ -18,7 +15,7 @@ use crate::helper::DisplayMapPlugin;
 // use bevy_spritefusion::prelude::*;
 // use bevy_asset_loader::prelude::*;
 
-// pub mod base;
+pub mod base;
 pub mod helper;
 
 // #[derive(AssetCollection, Resource)]
@@ -105,12 +102,12 @@ fn main() {
             // ProgressPlugin::<AssetLoading>::new()
             //     .with_state_transition(AssetLoading::Loading, AssetLoading::Loaded),
         ))
-        .add_plugins(TiledPlugin::default())
+        // .add_plugins(TiledPlugin::default())
         .add_plugins(DisplayMapPlugin)
         // .add_plugins(TiledDebugPluginGroup)
-        // .add_plugins(BasePlugin)
-        .add_systems(Startup, (startup,))
-        .add_systems(Update, switch_map)
+        .add_plugins(BasePlugin)
+        // .add_systems(Startup, (startup,))
+        // .add_systems(Update, switch_map)
         // .init_state::<AssetLoading>()
         // .add_loading_state(
         //     LoadingState::new(AssetLoading::Loading).continue_to_state(AssetLoading::Loaded), // .load_collection::<WorldTiles>()
@@ -135,63 +132,23 @@ fn main() {
         .run();
 }
 
-fn startup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2d);
-
-    let default_callback: helper::assets::MapInfosCallback = |c| {
-        info!("default_callback");
-        c.insert((
-            TilemapAnchor::Center,
-            // For isometric maps, it can be useful to tweak `bevy_ecs_tilemap` render settings.
-            // [`TilemapRenderSettings`] provides the `y_sort`` parameter to sort chunks using their y-axis
-            // position during rendering.
-            // However, it applies to whole chunks, not individual tile, so we have to force the chunk
-            // size to be exactly one tile along the y-axis.
-            TilemapRenderSettings {
-                render_chunk_size: UVec2::new(23, 1),
-                y_sort: true,
-            },
-        ));
-    };
-
-    // The `helper::AssetsManager` struct is an helper to easily switch between maps in examples.
-    // You should NOT use it directly in your games.
-    let mut mgr = helper::assets::AssetsManager::new(&mut commands);
-    mgr.add_map(helper::assets::MapInfos::new(
-        &asset_server,
-        "zone-1.3.tmx",
-        // "A finite 'diamond' isometric map",
-        "version 3 of the map. map is 'diamond' isometric map",
-        default_callback,
-    ));
-    // mgr.add_map(helper::assets::MapInfos::new(
-    //     &asset_server,
-    //     "zone-1.4.tmx",
-    //     // "A finite 'diamond' isometric map",
-    //     "version 4 of the map. map is 'diamond' isometric map and has layer groups",
-    //     default_callback,
-    // ));
-
-    // mgr.add_map(helper::assets::MapInfos::new(
-    //     &asset_server,
-    //     "zone-1.2.tmx",
-    //     "version 2 of the map. map is 'diamond' isometric map",
-    //     default_callback,
-    // ));
-    mgr.cycle_map(&mut commands);
-
-    commands.insert_resource(mgr);
-}
-
-fn switch_map(
-    mut commands: Commands,
-    keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut mgr: ResMut<helper::assets::AssetsManager>,
-) {
-    if keyboard_input.just_pressed(KeyCode::Space) {
-        mgr.cycle_map(&mut commands);
-    }
-}
+// fn startup(
+//     mut commands: Commands,
+//     mut meshes: ResMut<Assets<Mesh>>,
+//     mut materials: ResMut<Assets<StandardMaterial>>,
+// ) {
+//     commands.spawn(Camera3d);
+// }
+//
+// fn switch_map(
+//     mut commands: Commands,
+//     keyboard_input: Res<ButtonInput<KeyCode>>,
+//     mut mgr: ResMut<helper::assets::AssetsManager>,
+// ) {
+//     if keyboard_input.just_pressed(KeyCode::Space) {
+//         mgr.cycle_map(&mut commands);
+//     }
+// }
 
 // fn track_fake_long_task() -> Progress {
 //     false.into()

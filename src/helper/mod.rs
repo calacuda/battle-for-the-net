@@ -5,7 +5,7 @@ use bevy_inspector_egui::{bevy_egui::EguiPlugin, quick::WorldInspectorPlugin};
 // #[allow(dead_code)]
 pub mod assets;
 
-pub mod camera;
+// pub mod camera;
 pub mod map;
 
 #[derive(Default)]
@@ -18,7 +18,7 @@ impl Plugin for DisplayMapPlugin {
             WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::F1)),
         ));
         app.add_systems(Startup, setup_help_text);
-        app.add_systems(Update, camera::movement);
+        // app.add_systems(Update, camera::movement);
         app.add_systems(Update, map::rotate);
     }
 }
