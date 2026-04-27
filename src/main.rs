@@ -11,6 +11,7 @@ use avian3d::prelude::*;
 use bevy_skein::SkeinPlugin;
 use bevy_tnua::{
     TnuaControllerPlugin, TnuaScheme,
+    builtins::TnuaBuiltinClimb,
     prelude::{TnuaBuiltinJump, TnuaBuiltinWalk},
 };
 use bevy_tnua_avian3d::TnuaAvian3dPlugin;
@@ -76,7 +77,8 @@ pub mod helper;
 #[derive(TnuaScheme)]
 #[scheme(basis = TnuaBuiltinWalk)]
 pub enum ControlScheme {
-    // Jump(TnuaBuiltinJump),
+    Jump(TnuaBuiltinJump),
+    Climb(TnuaBuiltinClimb),
 }
 
 fn main() {
