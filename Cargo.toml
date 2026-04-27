@@ -6,7 +6,12 @@ edition = "2024"
 [features]
 default = [
 	# "desktop", 
-	"bevy/default",
+	# "bevy/default",
+	"bevy/3d",
+	"bevy/ui",
+	"bevy/default_platform",
+	"bevy/common_api",
+
 	"bevy/debug",
 ]
 # web = ["dioxus/web"]
@@ -69,7 +74,7 @@ headless_ci = [
 	# "bevy/zstd_rust",
 
 	## 0.18
-	"bevy/2d",
+	# "bevy/2d",
 	"bevy/3d",
 	"bevy/ui",
 	"bevy/default_platform",
