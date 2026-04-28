@@ -8,13 +8,14 @@ use bevy::{
 };
 // use bevy_ecs_tiled::prelude::*;
 use avian3d::prelude::*;
+use bevy_locomotion::PlayerPlugin;
 use bevy_skein::SkeinPlugin;
-use bevy_tnua::{
-    TnuaControllerPlugin, TnuaScheme,
-    builtins::TnuaBuiltinClimb,
-    prelude::{TnuaBuiltinJump, TnuaBuiltinWalk},
-};
-use bevy_tnua_avian3d::TnuaAvian3dPlugin;
+// use bevy_tnua::{
+//     TnuaControllerPlugin, TnuaScheme,
+//     builtins::TnuaBuiltinClimb,
+//     prelude::{TnuaBuiltinJump, TnuaBuiltinWalk},
+// };
+// use bevy_tnua_avian3d::TnuaAvian3dPlugin;
 
 use crate::{base::BasePlugin, helper::DisplayMapPlugin};
 
@@ -74,12 +75,12 @@ pub mod helper;
 //     Loaded,
 // }
 
-#[derive(TnuaScheme)]
-#[scheme(basis = TnuaBuiltinWalk)]
-pub enum ControlScheme {
-    Jump(TnuaBuiltinJump),
-    Climb(TnuaBuiltinClimb),
-}
+// #[derive(TnuaScheme)]
+// #[scheme(basis = TnuaBuiltinWalk)]
+// pub enum ControlScheme {
+//     Jump(TnuaBuiltinJump),
+//     Climb(TnuaBuiltinClimb),
+// }
 
 fn main() {
     let filter = format!(
@@ -116,8 +117,9 @@ fn main() {
             SkeinPlugin::default(),
             FrameTimeDiagnosticsPlugin::default(),
             PhysicsPlugins::default(),
-            TnuaControllerPlugin::<ControlScheme>::new(Update),
-            TnuaAvian3dPlugin::new(Update),
+            PlayerPlugin,
+            // TnuaControllerPlugin::<ControlScheme>::new(Update),
+            // TnuaAvian3dPlugin::new(Update),
             // WireframePlugin::default(),
             // ProgressPlugin::<AssetLoading>::new()
             //     .with_state_transition(AssetLoading::Loading, AssetLoading::Loaded),
