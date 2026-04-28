@@ -1,14 +1,22 @@
-use std::f32;
+use std::f32::{
+    self,
+    consts::{FRAC_PI_2, FRAC_PI_3, FRAC_PI_4, FRAC_PI_6, FRAC_PI_8, PI},
+};
 
 use avian3d::prelude::*;
 use bevy::{
-    gltf::GltfMeshExtras, light::CascadeShadowConfigBuilder, prelude::*, scene::SceneInstanceReady,
+    camera::primitives::Aabb, gltf::GltfMeshExtras, light::CascadeShadowConfigBuilder, prelude::*,
+    scene::SceneInstanceReady,
 };
 use bevy_tnua::{
-    builtins::{TnuaBuiltinClimbConfig, TnuaBuiltinJumpConfig, TnuaBuiltinWalkConfig},
+    TnuaObstacleRadar,
+    builtins::{
+        TnuaBuiltinClimb, TnuaBuiltinClimbConfig, TnuaBuiltinJumpConfig, TnuaBuiltinWalkConfig,
+    },
     prelude::*,
+    radar_lens::{TnuaBlipSpatialRelation, TnuaRadarLens},
 };
-use bevy_tnua_avian3d::TnuaAvian3dSensorShape;
+use bevy_tnua_avian3d::{TnuaAvian3dSensorShape, TnuaSpatialExtAvian3d};
 use serde::{Deserialize, Serialize};
 
 use crate::{ControlScheme, ControlSchemeConfig};
@@ -49,9 +57,20 @@ impl Plugin for BasePlugin {
         trace!("added base plugin.");
         app.init_resource::<PlayerOnFloor>();
         app.add_systems(Startup, setup);
-        app.add_systems(Update, camera_track_player);
-        app.add_systems(Update, make_higher_floors_transparent);
-        app.add_systems(Update, player_movement.in_set(TnuaUserControlsSystems));
+        // app.add_systems(Update, camera_track_player);
+        // app.add_systems(Update, make_higher_floors_transparent);
+        app.add_systems(
+            Update,
+            (
+                player_movement.in_set(TnuaUserControlsSystems),
+                (
+                    make_higher_floors_transparent.in_set(TnuaUserControlsSystems),
+                    camera_track_player,
+                ),
+            )
+                .chain(),
+        );
+        app.add_systems(Update, print_aabb_height_system);
     }
 }
 
@@ -86,6 +105,8 @@ fn setup(
     let transform = Transform::from_xyz(0.0, 10.0, 0.0);
     let scene_handle = asset_server.load(GltfAssetLabel::Scene(0).from_asset("net-lv-01.glb"));
 
+    let friction = Friction::new(0.125).with_combine_rule(CoefficientCombine::Average);
+
     // terain
     commands
         .spawn((
@@ -99,8 +120,10 @@ fn setup(
             )),
             CollisionEventsEnabled,
             RigidBody::Static,
-            Friction::new(0.5).with_combine_rule(CoefficientCombine::Multiply),
-            Restitution::ZERO.with_combine_rule(CoefficientCombine::Multiply),
+            // Friction::new(0.5).with_combine_rule(CoefficientCombine::Multiply),
+            friction,
+            // Restitution::new(-1.0).with_combine_rule(CoefficientCombine::Multiply),
+            Restitution::new(-1.0).with_combine_rule(CoefficientCombine::Average),
             Transform::from_xyz(0., 0., 0.),
             TerainSceneMeshMark,
             Visibility::Hidden,
@@ -113,21 +136,30 @@ fn setup(
         // ColliderConstructor::ConvexDecompositionFromMesh,
         RigidBody::Dynamic,
         TnuaController::<ControlScheme>::default(),
-        Friction::new(0.425).with_combine_rule(CoefficientCombine::Multiply),
-        Restitution::ZERO.with_combine_rule(CoefficientCombine::Multiply),
+        // Friction::new(0.125).with_combine_rule(CoefficientCombine::Average),
+        // Friction::new(0.45).with_combine_rule(CoefficientCombine::Multiply),
+        friction,
+        Restitution::new(-1.0).with_combine_rule(CoefficientCombine::Average),
         // GravityScale(2.0),
+        // GravityScale(0.03125),
         TnuaConfig::<ControlScheme>(control_scheme_configs.add(ControlSchemeConfig {
             basis: TnuaBuiltinWalkConfig {
                 // The `float_height` must be greater (even if by little) from the distance between
                 // the character's center and the lowest point of its collider.
-                float_height: 1.5,
+                float_height: 1.0,
                 // `TnuaBuiltinWalk` has many other fields for customizing the movement - but they
                 // have sensible defaults. Refer to the `TnuaBuiltinWalk`'s documentation to learn
                 // what they do.
                 speed: 10000.,
                 acceleration: f32::INFINITY,
-                // max_slope: 2.0 * PI / 3.,
-                // max_slope: PI / 6.,
+                // // max_slope: 2.0 * PI / 3.,
+                // // max_slope: PI / 6.,
+                // max_slope: std::f32::consts::FRAC_PI_2,
+                // max_slope: 5.0 * PI / 6.,
+                // max_slope: PI,
+                // max_slope: (PI) / 2.,
+                cling_distance: 100.0,
+                spring_strength: 100.,
                 ..Default::default()
             },
             jump: TnuaBuiltinJumpConfig {
@@ -136,10 +168,15 @@ fn setup(
                 // `TnuaBuiltinJump` also has customization fields with sensible defaults.
                 ..Default::default()
             },
-            climb: TnuaBuiltinClimbConfig { ..default() },
+            climb: TnuaBuiltinClimbConfig {
+                climb_speed: 10.,
+                climb_acceleration: f32::INFINITY,
+                ..default()
+            },
         })),
         // A sensor shape is not strictly necessary, but without it we'll get weird results.
-        TnuaAvian3dSensorShape(Collider::cylinder(0.49, 1.0)),
+        // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 1.0)),
+        TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
         // Tnua can fix the rotation, but the character will still get rotated before it can do so.
         // By locking the rotation we can prevent this.
         LockedAxes::ROTATION_LOCKED,
@@ -150,10 +187,12 @@ fn setup(
                 GameCollisionLayer::Player,
                 [GameCollisionLayer::Terrain],
             )),
-        PlayerMeshMark,
+        TnuaObstacleRadar::new(0.6, 1.0),
+        // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
         RayCaster::new(Vec3::ZERO, Dir3::NEG_Y)
             .with_max_hits(1)
-            .with_max_distance(12.),
+            .with_max_distance(15.),
+        PlayerMeshMark,
     ));
 }
 
@@ -176,17 +215,22 @@ pub fn camera_track_player(
 
 fn player_movement(
     keyboard: Res<ButtonInput<KeyCode>>,
-    mut query: Query<&mut TnuaController<ControlScheme>>,
+    mut query: Query<&mut TnuaController<ControlScheme>, With<PlayerMeshMark>>,
+    // mut query: Query<(&mut TnuaController<ControlScheme>, &TnuaObstacleRadar)>,
     // mut vel: Query<(&mut LinearVelocity, &mut AngularVelocity), With<PlayerMeshMark>>,
     // mut vel: Query<&mut LinearVelocity, With<PlayerMeshMark>>,
+    // spatial_ext: TnuaSpatialExtAvian3d,
+    // player_transform: Single<Option<&Transform>, With<PlayerMeshMark>>,
 ) {
     let Ok(mut controller) = query.single_mut() else {
-        warn!("TnuaController not found, therefor not running player_movement");
+        // let Ok((mut controller, obstacle_radar)) = query.single_mut() else {
+        warn!("TnuaController not found, not running player_movement");
         return;
     };
     controller.initiate_action_feeding();
 
     let mut direction = Vec3::ZERO;
+    // direction.y += FRAC_PI_6;
 
     if keyboard.pressed(KeyCode::ArrowUp) || keyboard.pressed(KeyCode::KeyW) {
         // info!("moving up");
@@ -226,19 +270,74 @@ fn player_movement(
     // Vec3::ZERO` to reset the previous frame's input.
     controller.basis = TnuaBuiltinWalk {
         // The `desired_motion` determines how the character will move.
-        desired_motion: direction.normalize_or_zero(),
+        desired_motion: direction,
         // The other field is `desired_forward` - but since the character model is a capsule we
         // don't care the direction its "forward" is pointing.
         desired_forward: Dir3::new(direction).ok(),
         // ..Default::default()
     };
 
-    // // Feed the jump action every frame as long as the player holds the jump button. If the player
-    // // stops holding the jump button, simply stop feeding the action.
-    // if keyboard.pressed(KeyCode::Space) {
-    //     // info!("jump");
-    //     controller.action(ControlScheme::Jump(Default::default()));
+    // let radar_lens = TnuaRadarLens::new(obstacle_radar, &spatial_ext);
+    //
+    // for blip in radar_lens.iter_blips() {
+    //     if let TnuaBlipSpatialRelation::Aeside(blip_direction) = blip.spatial_relation(0.25) {
+    //         let dot = blip_direction.dot(direction);
+    //         let blip_direction = blip_direction.to_owned().as_vec3().to_owned();
+    //         let should_climb =
+    //         // (-0.75 > blip_direction.dot(direction)
+    //         //     || 0.75 < blip_direction.dot(direction))
+    //             // && -1.0 != blip_direction.dot(direction)
+    //             // && 1.0 != blip_direction.dot(direction)
+    //             // && blip_direction.y <= 0.01
+    //             // && blip_direction.y >= -0.01
+    //             // &&
+    //             dot != 0.0 &&
+    //             direction != Vec3::ZERO &&
+    //             ((0.75 <= blip_direction.x.abs()
+    //                 && blip_direction.z == 0.0)
+    //                 || (0.75 <= blip_direction.z.abs()
+    //                     && blip_direction.x == 0.0));
+    //
+    //         // let should_climb = blip_direction.x >;
+    //
+    //         if should_climb {
+    //             info!("Climb");
+    //             // warn!(
+    //             //     "dot: {} | blip_dir: {}",
+    //             //     blip_direction.dot(direction),
+    //             //     blip_direction.as_vec3()
+    //             // );
+    //             let desired_climb_motion = direction; // + Vec3::Y;
+    //             // desired_climb_motion.y += FRAC_PI_3;
+    //             // desired_climb_motion.y = FRAC_PI_3;
+    //             info!("climb_motion: {desired_climb_motion}");
+    //             let player_loc = player_transform.unwrap().translation;
+    //
+    //             controller.action(ControlScheme::Climb(TnuaBuiltinClimb {
+    //                 anchor: player_loc,
+    //                 desired_vec_to_anchor: direction + player_loc,
+    //                 desired_climb_motion,
+    //                 // desired_forward: Dir3::new(blip_direction).ok(),
+    //                 // hard_stop_up: (),
+    //                 // hard_stop_down: (),
+    //                 ..Default::default()
+    //             }));
+    //         }
+    //
+    //         warn!(
+    //             "dot: {} | blip_dir: {}",
+    //             blip_direction.dot(direction),
+    //             blip_direction
+    //         );
+    //     }
     // }
+
+    // Feed the jump action every frame as long as the player holds the jump button. If the player
+    // stops holding the jump button, simply stop feeding the action.
+    if keyboard.pressed(KeyCode::Space) {
+        // info!("jump");
+        controller.action(ControlScheme::Jump(Default::default()));
+    }
 }
 
 fn make_higher_floors_transparent(
@@ -349,5 +448,13 @@ fn spawn_gltf_objects(
                 };
             }
         }
+    }
+}
+
+fn print_aabb_height_system(query: Query<&Aabb>) {
+    for (aabb) in query.iter() {
+        // Aabb.half_extents is the distance from center to edge
+        let height = aabb.half_extents.y * 2.0;
+        println!("Mesh AABB height: {}", height);
     }
 }
