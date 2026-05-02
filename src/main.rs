@@ -1,28 +1,15 @@
+use avian3d::prelude::*;
 use bevy::{
-    // color::palettes::css::GREEN,
     diagnostic::FrameTimeDiagnosticsPlugin,
     light::DirectionalLightShadowMap,
     log::{Level, LogPlugin},
-    // pbr::wireframe::{WireframeConfig, WireframePlugin},
     prelude::*,
 };
-// use bevy_ecs_tiled::prelude::*;
-use avian3d::prelude::*;
+use bevy_ahoy::prelude::*;
+use bevy_enhanced_input::prelude::*;
 use bevy_skein::SkeinPlugin;
-use bevy_tnua::{
-    TnuaControllerPlugin, TnuaScheme,
-    builtins::TnuaBuiltinClimb,
-    prelude::{TnuaBuiltinJump, TnuaBuiltinWalk},
-};
-use bevy_tnua_avian3d::TnuaAvian3dPlugin;
 
 use crate::{base::BasePlugin, helper::DisplayMapPlugin};
-
-// use bevy_ecs_tilemap::prelude::*;
-// use bevy_ecs_tiled::debug::*;
-// use iyes_progress::{Progress, ProgressTracker};
-// use bevy_spritefusion::prelude::*;
-// use bevy_asset_loader::prelude::*;
 
 pub mod base;
 pub mod helper;
@@ -74,12 +61,8 @@ pub mod helper;
 //     Loaded,
 // }
 
-#[derive(TnuaScheme)]
-#[scheme(basis = TnuaBuiltinWalk)]
-pub enum ControlScheme {
-    Jump(TnuaBuiltinJump),
-    // Climb(TnuaBuiltinClimb),
-}
+#[derive(Component, Default)]
+pub(crate) struct PlayerInput;
 
 fn main() {
     let filter = format!(
@@ -115,9 +98,10 @@ fn main() {
             default_plugins,
             SkeinPlugin::default(),
             FrameTimeDiagnosticsPlugin::default(),
-            PhysicsPlugins::new(PostUpdate),
-            TnuaControllerPlugin::<ControlScheme>::new(Update),
-            TnuaAvian3dPlugin::new(Update),
+            PhysicsPlugins::default(),
+            // PlayerPlugin,
+            EnhancedInputPlugin,
+            AhoyPlugins::default(),
             // WireframePlugin::default(),
             // ProgressPlugin::<AssetLoading>::new()
             //     .with_state_transition(AssetLoading::Loading, AssetLoading::Loaded),
