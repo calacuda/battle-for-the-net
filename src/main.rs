@@ -8,7 +8,7 @@ use bevy::{
 };
 // use bevy_ecs_tiled::prelude::*;
 use avian3d::prelude::*;
-use bevy_locomotion::PlayerPlugin;
+// use bevy_locomotion::PlayerPlugin;
 use bevy_skein::SkeinPlugin;
 // use bevy_tnua::{
 //     TnuaControllerPlugin, TnuaScheme,
@@ -16,6 +16,8 @@ use bevy_skein::SkeinPlugin;
 //     prelude::{TnuaBuiltinJump, TnuaBuiltinWalk},
 // };
 // use bevy_tnua_avian3d::TnuaAvian3dPlugin;
+use bevy_ahoy::prelude::*;
+use bevy_enhanced_input::prelude::*;
 
 use crate::{base::BasePlugin, helper::DisplayMapPlugin};
 
@@ -82,6 +84,9 @@ pub mod helper;
 //     Climb(TnuaBuiltinClimb),
 // }
 
+#[derive(Component, Default)]
+pub(crate) struct PlayerInput;
+
 fn main() {
     let filter = format!(
         "info,{}=trace,bevy_dioxus_hooks::query::command=error,wgpu_hal=off",
@@ -117,7 +122,9 @@ fn main() {
             SkeinPlugin::default(),
             FrameTimeDiagnosticsPlugin::default(),
             PhysicsPlugins::default(),
-            PlayerPlugin,
+            // PlayerPlugin,
+            EnhancedInputPlugin,
+            AhoyPlugins::default(),
             // TnuaControllerPlugin::<ControlScheme>::new(Update),
             // TnuaAvian3dPlugin::new(Update),
             // WireframePlugin::default(),

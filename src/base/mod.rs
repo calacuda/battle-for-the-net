@@ -5,8 +5,13 @@ use std::f32::{
 
 use avian3d::prelude::*;
 use bevy::{
-    camera::primitives::Aabb, gltf::GltfMeshExtras, light::CascadeShadowConfigBuilder, prelude::*,
+    camera::primitives::Aabb,
+    gltf::GltfMeshExtras,
+    input::common_conditions::input_just_pressed,
+    light::CascadeShadowConfigBuilder,
+    prelude::*,
     scene::SceneInstanceReady,
+    window::{CursorGrabMode, CursorOptions},
 };
 // use bevy_tnua::{
 //     TnuaObstacleRadar,
@@ -17,7 +22,11 @@ use bevy::{
 //     radar_lens::{TnuaBlipSpatialRelation, TnuaRadarLens},
 // };
 // use bevy_tnua_avian3d::{TnuaAvian3dSensorShape, TnuaSpatialExtAvian3d};
+use bevy_ahoy::prelude::*;
+use bevy_enhanced_input::prelude::*;
 use serde::{Deserialize, Serialize};
+
+use crate::PlayerInput;
 
 // use crate::{ControlScheme, ControlSchemeConfig};
 
@@ -59,6 +68,7 @@ impl Plugin for BasePlugin {
         app.add_systems(Startup, setup);
         // app.add_systems(Update, camera_track_player);
         // app.add_systems(Update, make_higher_floors_transparent);
+        app.add_input_context::<PlayerInput>();
         app.add_systems(
             Update,
             (
@@ -70,7 +80,15 @@ impl Plugin for BasePlugin {
             )
                 .chain(),
         );
-        app.add_systems(Update, print_aabb_height_system);
+        // app.add_systems(
+        //     Update,
+        //     (
+        //         capture_cursor.run_if(input_just_pressed(MouseButton::Left)),
+        //         release_cursor.run_if(input_just_pressed(KeyCode::Escape)),
+        //     ),
+        // );
+        // app.add_systems(Update, apply_movement)
+        // app.add_systems(Update, print_aabb_height_system);
     }
 }
 
@@ -105,7 +123,8 @@ fn setup(
     let transform = Transform::from_xyz(0.0, 10.0, 0.0);
     let scene_handle = asset_server.load(GltfAssetLabel::Scene(0).from_asset("net-lv-01.glb"));
 
-    let friction = Friction::new(0.125).with_combine_rule(CoefficientCombine::Average);
+    let friction = Friction::new(10.0).with_combine_rule(CoefficientCombine::Average);
+    // let friction = Friction::default;
 
     // terain
     commands
@@ -191,10 +210,47 @@ fn setup(
         // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
         RayCaster::new(Vec3::ZERO, Dir3::NEG_Y)
             .with_max_hits(1)
-            .with_max_distance(15.),
+            .with_max_distance(10.),
+        PlayerInput,
+        CharacterController {
+            speed: 7.75,
+            ..CharacterController::default()
+        },
+        actions!(PlayerInput[
+            (
+                Action::<Movement>::new(),
+                // Normalize the input vector
+                DeadZone::default(),
+                Bindings::spawn((
+                    Cardinal::wasd_keys(),
+                    Axial::left_stick()
+                ))
+            ),
+            (
+                Action::<Jump>::new(),
+                bindings![KeyCode::Space,  GamepadButton::South],
+            ),
+            (
+                Action::<Crouch>::new(),
+                bindings![KeyCode::ControlLeft, GamepadButton::LeftTrigger2],
+            ),
+            (
+                Action::<RotateCamera>::new(),
+                Bindings::spawn((
+                    // tweak mouse and right stick sensitivity
+                    // in Scale::splat values
+                    Spawn((Binding::mouse_motion(), Scale::splat(0.07))),
+                    Axial::right_stick().with((Scale::splat(4.0), DeadZone::default())),
+                ))
+            ),
+        ]),
         PlayerMeshMark,
     ));
 }
+
+// fn apply_movement(movement: On<Fire<Movement>>) {
+//     info!("should be moving");
+// }
 
 pub fn camera_track_player(
     // time: Res<Time>,
@@ -451,10 +507,12 @@ fn spawn_gltf_objects(
     }
 }
 
-fn print_aabb_height_system(query: Query<&Aabb>) {
-    for aabb in query.iter() {
-        // Aabb.half_extents is the distance from center to edge
-        let height = aabb.half_extents.y * 2.0;
-        println!("Mesh AABB height: {}", height);
-    }
-}
+// fn capture_cursor(mut cursor: Single<&mut CursorOptions>) {
+//     cursor.grab_mode = CursorGrabMode::Locked;
+//     cursor.visible = false;
+// }
+//
+// fn release_cursor(mut cursor: Single<&mut CursorOptions>) {
+//     cursor.visible = true;
+//     cursor.grab_mode = CursorGrabMode::None;
+// }
