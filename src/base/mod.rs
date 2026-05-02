@@ -8,12 +8,12 @@ use bevy::{
     gltf::GltfMeshExtras, light::CascadeShadowConfigBuilder, prelude::*, scene::SceneInstanceReady,
 };
 use bevy_tnua::{
-    TnuaGravity, TnuaObstacleRadar,
     builtins::{
         TnuaBuiltinClimb, TnuaBuiltinClimbConfig, TnuaBuiltinJumpConfig, TnuaBuiltinWalkConfig,
     },
     prelude::*,
     radar_lens::{TnuaBlipSpatialRelation, TnuaRadarLens},
+    TnuaGravity, TnuaObstacleRadar,
 };
 use bevy_tnua_avian3d::{TnuaAvian3dSensorShape, TnuaSpatialExtAvian3d};
 use serde::{Deserialize, Serialize};
@@ -29,10 +29,10 @@ pub struct TerainSceneMeshMark;
 #[derive(Component)]
 pub struct TerainMeshMark;
 
-#[derive(Component, Default, Debug, Eq, PartialEq, PartialOrd, Clone, Copy)]
+#[derive(Component, Deref, DerefMut, Default, Debug, Eq, PartialEq, PartialOrd, Clone, Copy)]
 pub struct FloorLevel(pub i32);
 
-#[derive(Resource, Default, Debug, Eq, PartialEq, PartialOrd, Clone, Copy)]
+#[derive(Resource, Deref, DerefMut, Default, Debug, Eq, PartialEq, PartialOrd, Clone, Copy)]
 pub struct PlayerOnFloor(pub FloorLevel);
 
 #[derive(Component, Deserialize, Serialize)]
@@ -70,6 +70,7 @@ impl Plugin for BasePlugin {
                 .chain(),
         );
         // app.add_systems(Update, print_aabb_height_system);
+        // app.add_systems(Update, log_floor());
     }
 }
 
@@ -141,7 +142,8 @@ fn setup(
         Restitution::new(-1.0).with_combine_rule(CoefficientCombine::Average),
         // GravityScale(2.0),
         // GravityScale(0.03125),
-        GravityScale(-2.0),
+        // GravityScale(-2.0),
+        GravityScale(1.0),
         // TnuaGravity(Vec3::X * 0.0625),
         TnuaConfig::<ControlScheme>(control_scheme_configs.add(ControlSchemeConfig {
             basis: TnuaBuiltinWalkConfig {
@@ -157,7 +159,7 @@ fn setup(
                 // // max_slope: PI / 6.,
                 // max_slope: std::f32::consts::FRAC_PI_2,
                 // max_slope: 5.0 * PI / 6.,
-                max_slope: PI / 4.,
+                max_slope: PI * 2.0,
                 // max_slope: f32::INFINITY,
                 cling_distance: 1.0,
                 spring_strength: 100000.,
@@ -224,6 +226,7 @@ fn player_movement(
     // mut vel: Query<&mut LinearVelocity, With<PlayerMeshMark>>,
     // spatial_ext: TnuaSpatialExtAvian3d,
     // player_transform: Single<Option<&Transform>, With<PlayerMeshMark>>,
+    // floor: Res<PlayerOnFloor>,
 ) {
     let Ok(mut controller) = query.single_mut() else {
         // let Ok((mut controller, obstacle_radar)) = query.single_mut() else {
@@ -251,6 +254,14 @@ fn player_movement(
         // info!("moving right");
         direction += Vec3::X;
     }
+
+    // if *floor.0 % 2 == 1 {
+    //     // direction *= 2.0;
+    //     // vel.
+    //     for mut lin_velocity in vel.iter_mut() {
+    //         lin_velocity.y += 0.75;
+    //     }
+    // }
 
     // for mut lin_velocity in vel.iter_mut() {
     //     if !keyboard.pressed(KeyCode::ArrowUp)
@@ -280,61 +291,6 @@ fn player_movement(
         // ..Default::default()
     };
 
-    // let radar_lens = TnuaRadarLens::new(obstacle_radar, &spatial_ext);
-    //
-    // for blip in radar_lens.iter_blips() {
-    //     if let TnuaBlipSpatialRelation::Aeside(blip_direction) = blip.spatial_relation(0.25) {
-    //         let dot = blip_direction.dot(direction);
-    //         let blip_direction = blip_direction.to_owned().as_vec3().to_owned();
-    //         let should_climb =
-    //         // (-0.75 > blip_direction.dot(direction)
-    //         //     || 0.75 < blip_direction.dot(direction))
-    //             // && -1.0 != blip_direction.dot(direction)
-    //             // && 1.0 != blip_direction.dot(direction)
-    //             // && blip_direction.y <= 0.01
-    //             // && blip_direction.y >= -0.01
-    //             // &&
-    //             dot != 0.0 &&
-    //             direction != Vec3::ZERO &&
-    //             ((0.75 <= blip_direction.x.abs()
-    //                 && blip_direction.z == 0.0)
-    //                 || (0.75 <= blip_direction.z.abs()
-    //                     && blip_direction.x == 0.0));
-    //
-    //         // let should_climb = blip_direction.x >;
-    //
-    //         if should_climb {
-    //             info!("Climb");
-    //             // warn!(
-    //             //     "dot: {} | blip_dir: {}",
-    //             //     blip_direction.dot(direction),
-    //             //     blip_direction.as_vec3()
-    //             // );
-    //             let desired_climb_motion = direction; // + Vec3::Y;
-    //             // desired_climb_motion.y += FRAC_PI_3;
-    //             // desired_climb_motion.y = FRAC_PI_3;
-    //             info!("climb_motion: {desired_climb_motion}");
-    //             let player_loc = player_transform.unwrap().translation;
-    //
-    //             controller.action(ControlScheme::Climb(TnuaBuiltinClimb {
-    //                 anchor: player_loc,
-    //                 desired_vec_to_anchor: direction + player_loc,
-    //                 desired_climb_motion,
-    //                 // desired_forward: Dir3::new(blip_direction).ok(),
-    //                 // hard_stop_up: (),
-    //                 // hard_stop_down: (),
-    //                 ..Default::default()
-    //             }));
-    //         }
-    //
-    //         warn!(
-    //             "dot: {} | blip_dir: {}",
-    //             blip_direction.dot(direction),
-    //             blip_direction
-    //         );
-    //     }
-    // }
-
     // Feed the jump action every frame as long as the player holds the jump button. If the player
     // stops holding the jump button, simply stop feeding the action.
     if keyboard.pressed(KeyCode::Space) {
@@ -358,7 +314,13 @@ fn make_higher_floors_transparent(
                 continue;
             };
             mk_solid.push(level);
+
+            if floor.0 != *level {
+                info!("on floor {}", level.0);
+            }
+
             floor.0 = *level;
+
             break;
         }
     }
@@ -453,11 +415,3 @@ fn spawn_gltf_objects(
         }
     }
 }
-
-// fn print_aabb_height_system(query: Query<&Aabb>) {
-//     for aabb in query.iter() {
-//         // Aabb.half_extents is the distance from center to edge
-//         let height = aabb.half_extents.y * 2.0;
-//         println!("Mesh AABB height: {}", height);
-//     }
-// }
