@@ -5,11 +5,10 @@ use std::f32::{
 
 use avian3d::prelude::*;
 use bevy::{
-    camera::primitives::Aabb, gltf::GltfMeshExtras, light::CascadeShadowConfigBuilder, prelude::*,
-    scene::SceneInstanceReady,
+    gltf::GltfMeshExtras, light::CascadeShadowConfigBuilder, prelude::*, scene::SceneInstanceReady,
 };
 use bevy_tnua::{
-    TnuaObstacleRadar,
+    TnuaGravity, TnuaObstacleRadar,
     builtins::{
         TnuaBuiltinClimb, TnuaBuiltinClimbConfig, TnuaBuiltinJumpConfig, TnuaBuiltinWalkConfig,
     },
@@ -70,7 +69,7 @@ impl Plugin for BasePlugin {
             )
                 .chain(),
         );
-        app.add_systems(Update, print_aabb_height_system);
+        // app.add_systems(Update, print_aabb_height_system);
     }
 }
 
@@ -105,7 +104,7 @@ fn setup(
     let transform = Transform::from_xyz(0.0, 10.0, 0.0);
     let scene_handle = asset_server.load(GltfAssetLabel::Scene(0).from_asset("net-lv-01.glb"));
 
-    let friction = Friction::new(0.125).with_combine_rule(CoefficientCombine::Average);
+    let friction = Friction::new(0.2125).with_combine_rule(CoefficientCombine::Average);
 
     // terain
     commands
@@ -142,6 +141,8 @@ fn setup(
         Restitution::new(-1.0).with_combine_rule(CoefficientCombine::Average),
         // GravityScale(2.0),
         // GravityScale(0.03125),
+        GravityScale(-2.0),
+        // TnuaGravity(Vec3::X * 0.0625),
         TnuaConfig::<ControlScheme>(control_scheme_configs.add(ControlSchemeConfig {
             basis: TnuaBuiltinWalkConfig {
                 // The `float_height` must be greater (even if by little) from the distance between
@@ -156,27 +157,29 @@ fn setup(
                 // // max_slope: PI / 6.,
                 // max_slope: std::f32::consts::FRAC_PI_2,
                 // max_slope: 5.0 * PI / 6.,
-                // max_slope: PI,
-                // max_slope: (PI) / 2.,
-                cling_distance: 100.0,
-                spring_strength: 100.,
+                max_slope: PI / 4.,
+                // max_slope: f32::INFINITY,
+                cling_distance: 1.0,
+                spring_strength: 100000.,
                 ..Default::default()
             },
             jump: TnuaBuiltinJumpConfig {
                 // The height is the only mandatory field of the jump action.
-                height: 4.0,
+                height: 6.0,
+                // takeoff_extra_gravity: -200.0,
+                // takeoff_above_velocity: 10.0,
                 // `TnuaBuiltinJump` also has customization fields with sensible defaults.
                 ..Default::default()
             },
-            climb: TnuaBuiltinClimbConfig {
-                climb_speed: 10.,
-                climb_acceleration: f32::INFINITY,
-                ..default()
-            },
+            // climb: TnuaBuiltinClimbConfig {
+            //     climb_speed: 10.,
+            //     climb_acceleration: f32::INFINITY,
+            //     ..default()
+            // },
         })),
         // A sensor shape is not strictly necessary, but without it we'll get weird results.
-        // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 1.0)),
-        TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
+        TnuaAvian3dSensorShape(Collider::cylinder(1.5, 1.0)),
+        // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
         // Tnua can fix the rotation, but the character will still get rotated before it can do so.
         // By locking the rotation we can prevent this.
         LockedAxes::ROTATION_LOCKED,
@@ -187,7 +190,7 @@ fn setup(
                 GameCollisionLayer::Player,
                 [GameCollisionLayer::Terrain],
             )),
-        TnuaObstacleRadar::new(0.6, 1.0),
+        // TnuaObstacleRadar::new(0.6, 1.0),
         // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
         RayCaster::new(Vec3::ZERO, Dir3::NEG_Y)
             .with_max_hits(1)
@@ -336,7 +339,7 @@ fn player_movement(
     // stops holding the jump button, simply stop feeding the action.
     if keyboard.pressed(KeyCode::Space) {
         // info!("jump");
-        controller.action(ControlScheme::Jump(Default::default()));
+        controller.action(ControlScheme::Jump(TnuaBuiltinJump::default()));
     }
 }
 
@@ -451,10 +454,10 @@ fn spawn_gltf_objects(
     }
 }
 
-fn print_aabb_height_system(query: Query<&Aabb>) {
-    for (aabb) in query.iter() {
-        // Aabb.half_extents is the distance from center to edge
-        let height = aabb.half_extents.y * 2.0;
-        println!("Mesh AABB height: {}", height);
-    }
-}
+// fn print_aabb_height_system(query: Query<&Aabb>) {
+//     for aabb in query.iter() {
+//         // Aabb.half_extents is the distance from center to edge
+//         let height = aabb.half_extents.y * 2.0;
+//         println!("Mesh AABB height: {}", height);
+//     }
+// }

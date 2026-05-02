@@ -78,7 +78,7 @@ pub mod helper;
 #[scheme(basis = TnuaBuiltinWalk)]
 pub enum ControlScheme {
     Jump(TnuaBuiltinJump),
-    Climb(TnuaBuiltinClimb),
+    // Climb(TnuaBuiltinClimb),
 }
 
 fn main() {
@@ -115,7 +115,7 @@ fn main() {
             default_plugins,
             SkeinPlugin::default(),
             FrameTimeDiagnosticsPlugin::default(),
-            PhysicsPlugins::default(),
+            PhysicsPlugins::new(PostUpdate),
             TnuaControllerPlugin::<ControlScheme>::new(Update),
             TnuaAvian3dPlugin::new(Update),
             // WireframePlugin::default(),
