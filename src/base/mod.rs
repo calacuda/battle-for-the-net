@@ -128,7 +128,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
         RayCaster::new(Vec3::ZERO, Dir3::NEG_Y)
             .with_max_hits(1)
-            .with_max_distance(10.),
+            .with_max_distance(15.),
         PlayerInput,
         CharacterController {
             speed: 7.75,
