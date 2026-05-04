@@ -166,10 +166,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     ));
 }
 
-// fn apply_movement(movement: On<Fire<Movement>>) {
-//     info!("should be moving");
-// }
-
 pub fn camera_track_player(
     // time: Res<Time>,
     mut camera: Query<&mut Transform, (With<Camera>, Without<PlayerMeshMark>)>,
