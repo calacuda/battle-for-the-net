@@ -108,14 +108,10 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         SceneRoot(asset_server.load("temp-char.glb#Scene0")),
         // ColliderConstructor::ConvexDecompositionFromMesh,
         RigidBody::Dynamic,
-        // TnuaController::<ControlScheme>::default(),
         // Friction::new(0.125).with_combine_rule(CoefficientCombine::Average),
         // Friction::new(0.45).with_combine_rule(CoefficientCombine::Multiply),
         friction,
         Restitution::new(-1.0).with_combine_rule(CoefficientCombine::Average),
-        // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
-        // Tnua can fix the rotation, but the character will still get rotated before it can do so.
-        // By locking the rotation we can prevent this.
         LockedAxes::ROTATION_LOCKED,
         transform,
         CollisionEventsEnabled,
@@ -124,8 +120,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 GameCollisionLayer::Player,
                 [GameCollisionLayer::Terrain],
             )),
-        // TnuaObstacleRadar::new(0.6, 1.0),
-        // TnuaAvian3dSensorShape(Collider::cylinder(0.49, 0.0)),
         RayCaster::new(Vec3::ZERO, Dir3::NEG_Y)
             .with_max_hits(1)
             .with_max_distance(15.),
