@@ -108,8 +108,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         SceneRoot(asset_server.load("temp-char.glb#Scene0")),
         // ColliderConstructor::ConvexDecompositionFromMesh,
         RigidBody::Dynamic,
-        // Friction::new(0.125).with_combine_rule(CoefficientCombine::Average),
-        // Friction::new(0.45).with_combine_rule(CoefficientCombine::Multiply),
         friction,
         Restitution::new(-1.0).with_combine_rule(CoefficientCombine::Average),
         LockedAxes::ROTATION_LOCKED,
