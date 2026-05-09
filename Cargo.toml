@@ -76,7 +76,7 @@ headless_ci = [
 	## 0.18
 	# "bevy/2d",
 	"bevy/3d",
-	"bevy/ui",
+	# "bevy/ui",
 	# "bevy/default_platform",
 	"bevy/common_api",
 	"bevy/bevy_ci_testing",
@@ -105,7 +105,7 @@ bevy_common_assets = { version = "0.14", features = ["json", "ron", "toml"] }
 # crossbeam = { version = "0.8.4", features = ["crossbeam-channel"] }
 bevy_skein = "0.5.0"
 bevy_northstar = "0.6.1"
-bevy_asset_loader = { version = "0.25.0", features = ["2d"] }
+bevy_asset_loader = { version = "0.25.0", features = ["3d"] }
 # iyes_progress = { version = "0.16.0", features = ["assets", "async", "debug"] }
 # bevy_ecs_tilemap = { version = "0.18.1", features = ["serde"] }
 # tiled = "0.15"
