@@ -25,13 +25,13 @@ image: "rust:latest"
 test:cargo:
   script:
     - rustc --version && cargo --version  # Print version info for debugging
-    - cargo test --workspace --verbose -F headless_ci
+    - cargo test --workspace --verbose -F headless_ci --no-default-features
 
 clippy:cargo:
   script:
     - rustc --version && cargo --version  # Print version info for debugging
     - rustup component add clippy
-    - cargo clippy -- -D warnings
+    - cargo clippy --no-default-features -- -D warnings
 
 
 # Optional: Use a third party library to generate gitlab junit reports
