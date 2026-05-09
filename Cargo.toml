@@ -83,7 +83,7 @@ headless_ci = [
 	"bevy/std",
 	"bevy/multi_threaded",
 	"bevy/default_font",
-	"bevy/bevy_winit",
+	# "bevy/bevy_winit",
 	"bevy/bevy_gilrs",
 	# "bevy/",
 	# "bevy/",
