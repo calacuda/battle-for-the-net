@@ -25,7 +25,7 @@ before_script:
 test:cargo:
   script:
     - rustc --version && cargo --version  # Print version info for debugging
-    - cargo test --workspace --verbose -F headless_ci --no-default-features
+    - cargo test --workspace -F headless_ci --no-default-features
 
 clippy:cargo:
   script:
