@@ -22,7 +22,7 @@ test:cargo:
     - rustc --version && cargo --version  # Print version info for debugging
     - cargo test --workspace --verbose -F headless_ci
 
-test:cargo:
+clippy:cargo:
   script:
     - rustc --version && cargo --version  # Print version info for debugging
     - cargo clippy -- -D warnings
@@ -39,7 +39,7 @@ test:cargo:
 #     reports:
 #       junit: $CI_PROJECT_DIR/tests/*.xml
 
-deploy:
-  stage: deploy
-  script: echo "Define your deployment script!"
-  environment: production
+# deploy:
+#   stage: deploy
+#   script: echo "Define your deployment script!"
+#   environment: production
